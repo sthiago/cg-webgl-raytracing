@@ -43,7 +43,7 @@ function gen_n_esferas(n, xmin, xmax, ymin, ymax, zmin, zmax, rmin, rmax)
 }
 
 
-function raio_intercepta_esfera(i, j, xmin, ymax, pointsize, esfera, d)
+function raio_intercepta_esfera(i, j, pointsize, esfera, d)
 {
     const { xc, yc, zc, r } = esfera;
 
@@ -56,7 +56,12 @@ function raio_intercepta_esfera(i, j, xmin, ymax, pointsize, esfera, d)
 
     const delta = B**2 - 4*A*C;
 
-    return delta >= 0;
+    if (delta >= 0) {
+        // o t mais perto do COP
+        return (-B - delta**(0.5)) / (2*A);
+    }
+
+    return undefined;
 }
 
 
@@ -68,17 +73,19 @@ function rrrrrraios(min, max, step, esferas, d)
     for (let i = 0; i < vertices.length; i+=2) {
         const [y, x] = vertices.slice(i, i+2);
 
-        let intercepta = false;
+        let interceptou = false;
+        let t_interceptacao = +Infinity;
         let color;
         for (const esfera of esferas) {
-            if (raio_intercepta_esfera(x, y, min, max, step, esfera, d)) {
-                intercepta = true;
+            const t = raio_intercepta_esfera(x, y, step, esfera, d);
+            if (t != undefined && t < t_interceptacao) {
+                interceptou = true;
+                t_interceptacao = t;
                 color = esfera.color;
-                break;
             }
         }
 
-        if (intercepta) {
+        if (interceptou) {
             colors.push(color.r, color.g, color.b);
         } else {
             colors.push(0, 0, 0);
