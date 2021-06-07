@@ -61,13 +61,22 @@ function raio_intercepta_esfera(i, j, xmin, ymax, pointsize, esfera, d) {
 }
 
 
-function rrrrrraios(min, max, step, esfera, d) {
+function rrrrrraios(min, max, step, esferas, d) {
     const vertices = gen_vertices(min, max, step);
 
     const colors = [];
     for (let i = 0; i < vertices.length; i+=2) {
         const [y, x] = vertices.slice(i, i+2);
-        if (raio_intercepta_esfera(x, y, min, max, step, esfera, d)) {
+
+        let intercepta = false;
+        for (const esfera of esferas) {
+            if (raio_intercepta_esfera(x, y, min, max, step, esfera, d)) {
+                intercepta = true;
+                break;
+            }
+        }
+
+        if (intercepta) {
             colors.push(0, 0, 0);
         } else {
             colors.push(1, 1, 1);
@@ -107,8 +116,11 @@ async function main()
     gl.enableVertexAttribArray(a_position);
     gl.vertexAttribPointer(a_position, 2, gl.FLOAT, false, 0, 0);
 
-    const esfera = { xc: 0, yc: 0, zc: 0, r: 50 }
-    const { vertices, colors } = rrrrrraios(-300, 300, pointsize, esfera, 100);
+    // Gera esferas aleatórias
+    const n = Math.floor(rand_range(3, 8));
+    const esferas = gen_n_esferas(n, -500, 500, -500, 500, -800, -1200, 100, 200);
+
+    const { vertices, colors } = rrrrrraios(-300, 300, pointsize, esferas, 1000);
 
     console.log(vertices);
     console.log(colors);
