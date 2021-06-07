@@ -15,28 +15,26 @@ function gen_vertices(min, max, step=0.1) {
 }
 
 
-function gen_colors(n) {
-    const colors = [];
-    for (let i = 0; i < n; i++) {
-        for (const _ of [ 'R', 'G', 'B']) {
-            colors.push(Math.random());
-        }
-    }
-    return colors;
-}
+function gen_esfera(xmin, xmax, ymin, ymax, zmin, zmax, rmin, rmax)
+{
+    const color = {
+        r: Math.random(),
+        g: Math.random(),
+        b: Math.random()
+    };
 
-
-function gen_esfera(xmin, xmax, ymin, ymax, zmin, zmax, rmin, rmax) {
     return {
         xc: rand_range(xmin, xmax),
         yc: rand_range(ymin, ymax),
         zc: rand_range(zmin, zmax),
         r: rand_range(rmin, rmax),
+        color,
     }
 }
 
 
-function gen_n_esferas(n, xmin, xmax, ymin, ymax, zmin, zmax, rmin, rmax) {
+function gen_n_esferas(n, xmin, xmax, ymin, ymax, zmin, zmax, rmin, rmax)
+{
     const esferas = [];
     for (let i = 0; i < n; i++) {
         esferas.push(gen_esfera(xmin, xmax, ymin, ymax, zmin, zmax, rmin, rmax));
@@ -45,7 +43,8 @@ function gen_n_esferas(n, xmin, xmax, ymin, ymax, zmin, zmax, rmin, rmax) {
 }
 
 
-function raio_intercepta_esfera(i, j, xmin, ymax, pointsize, esfera, d) {
+function raio_intercepta_esfera(i, j, xmin, ymax, pointsize, esfera, d)
+{
     const { xc, yc, zc, r } = esfera;
 
     i = i + pointsize/2;
@@ -61,7 +60,8 @@ function raio_intercepta_esfera(i, j, xmin, ymax, pointsize, esfera, d) {
 }
 
 
-function rrrrrraios(min, max, step, esferas, d) {
+function rrrrrraios(min, max, step, esferas, d)
+{
     const vertices = gen_vertices(min, max, step);
 
     const colors = [];
@@ -69,17 +69,19 @@ function rrrrrraios(min, max, step, esferas, d) {
         const [y, x] = vertices.slice(i, i+2);
 
         let intercepta = false;
+        let color;
         for (const esfera of esferas) {
             if (raio_intercepta_esfera(x, y, min, max, step, esfera, d)) {
                 intercepta = true;
+                color = esfera.color;
                 break;
             }
         }
 
         if (intercepta) {
-            colors.push(0, 0, 0);
+            colors.push(color.r, color.g, color.b);
         } else {
-            colors.push(1, 1, 1);
+            colors.push(0, 0, 0);
         }
 
     }
@@ -120,7 +122,7 @@ async function main()
     const n = Math.floor(rand_range(3, 8));
     const esferas = gen_n_esferas(n, -500, 500, -500, 500, -800, -1200, 100, 200);
 
-    const { vertices, colors } = rrrrrraios(-300, 300, pointsize, esferas, 1000);
+    const { vertices, colors } = rrrrrraios(-300 - pointsize, 300 + pointsize, pointsize, esferas, 1000);
 
     console.log(vertices);
     console.log(colors);
