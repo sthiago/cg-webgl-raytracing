@@ -43,7 +43,7 @@ function gen_n_esferas(n, xmin, xmax, ymin, ymax, zmin, zmax, rmin, rmax)
 }
 
 
-function raio_intercepta_esfera(i, j, pointsize, esfera, d)
+function raio_intercepta_esfera(i, j, pointsize, esfera, d, luz)
 {
     const { xc, yc, zc, r } = esfera;
 
@@ -65,7 +65,7 @@ function raio_intercepta_esfera(i, j, pointsize, esfera, d)
 }
 
 
-function rrrrrraios(min, max, step, esferas, d)
+function rrrrrraios(min, max, step, esferas, d, luz)
 {
     const vertices = gen_vertices(min, max, step);
 
@@ -77,7 +77,7 @@ function rrrrrraios(min, max, step, esferas, d)
         let t_interceptacao = +Infinity;
         let color;
         for (const esfera of esferas) {
-            const t = raio_intercepta_esfera(x, y, step, esfera, d);
+            const t = raio_intercepta_esfera(x, y, step, esfera, d, luz);
             if (t != undefined && t < t_interceptacao) {
                 interceptou = true;
                 t_interceptacao = t;
@@ -86,7 +86,11 @@ function rrrrrraios(min, max, step, esferas, d)
         }
 
         if (interceptou) {
-            colors.push(color.r, color.g, color.b);
+            const r = luz.i*luz.r * color.r;
+            const g = luz.i*luz.g * color.g;
+            const b = luz.i*luz.b * color.b;
+
+            colors.push(r, g, b);
         } else {
             colors.push(0, 0, 0);
         }
@@ -129,7 +133,23 @@ async function main()
     const n = Math.floor(rand_range(3, 8));
     const esferas = gen_n_esferas(n, -500, 500, -500, 500, -800, -1200, 100, 200);
 
-    const { vertices, colors } = rrrrrraios(-300 - pointsize, 300 + pointsize, pointsize, esferas, 1000);
+    // Gera luz aleatória
+    const luz = {
+        // Intensidade
+        i: rand_range(0.5, 1.0),
+
+        // Cor
+        r: Math.random(),
+        g: Math.random(),
+        b: Math.random(),
+
+        // Posição
+        x: rand_range(-500, 500),
+        y: rand_range(-500, 500),
+        z: rand_range(-400, -800),
+    };
+
+    const { vertices, colors } = rrrrrraios(-300 - pointsize, 300 + pointsize, pointsize, esferas, 1000, luz);
 
     console.log(vertices);
     console.log(colors);
