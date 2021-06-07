@@ -2,10 +2,10 @@
 function radToDeg(r) { return r * 180 / Math.PI; }
 function degToRad(d) { return d * Math.PI / 180; }
 
-function gen_vertices() {
+function gen_vertices(min, max, step=0.1) {
     const vertices = [];
-    for (let i = -1; i < 1; i += 0.1) {
-        for (let j = -1; j < 1; j += 0.1) {
+    for (let i = min; i < max; i += step) {
+        for (let j = min; j < max; j += step) {
             vertices.push(i, j, 0);
         }
     }
@@ -14,13 +14,11 @@ function gen_vertices() {
 
 function gen_colors(n) {
     const colors = [];
-
     for (let i = 0; i < n; i++) {
         for (const _ of [ 'R', 'G', 'B']) {
             colors.push(Math.random());
         }
     }
-
     return colors;
 }
 
@@ -40,6 +38,10 @@ async function main()
     // Configuração de atributos e uniforms
     const a_position = gl.getAttribLocation(program, "a_position");
     const a_color = gl.getAttribLocation(program, "a_color");
+    const u_resolution = gl.getUniformLocation(program, "u_resolution");
+    const u_pointsize = gl.getUniformLocation(program, "u_pointsize");
+
+    const pointsize = 2.0;
 
     const vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
@@ -50,7 +52,7 @@ async function main()
     gl.enableVertexAttribArray(a_position);
     gl.vertexAttribPointer(a_position, 3, gl.FLOAT, false, 0, 0);
 
-    const vertices = gen_vertices();
+    const vertices = gen_vertices(-280, 280, pointsize);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
     // Carrega cores no buffer
@@ -63,14 +65,15 @@ async function main()
 
     // Desenhar a cena
     // Configurações iniciais para desenhar a cena
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.clearColor(1, 1, 1, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.enable(gl.CULL_FACE);
     gl.useProgram(program);
     gl.bindVertexArray(vao);
 
-    gl.drawArrays(gl.POINTS, 0, vertices.length);
+    gl.uniform2f(u_resolution, gl.canvas.width, gl.canvas.height);
+    gl.uniform1f(u_pointsize, pointsize);
+
+    gl.drawArrays(gl.POINTS, 0, vertices.length/3);
 }
 
 main();
