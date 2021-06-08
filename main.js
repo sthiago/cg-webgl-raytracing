@@ -20,6 +20,7 @@ let luz;
 let comp_ambiente = true;
 let comp_difusa = true;
 let comp_especular = true;
+let esferas;
 
 function gen_vertices(min, max, step=0.1) {
     const vertices = [];
@@ -296,16 +297,20 @@ function update_luz()
 
 function setup()
 {
+    // Configura valores iniciais
+    seed = seed_inicial;
+    document.getElementById("seed").value = seed_inicial;
+
     // Gera luz inicial aleatória
     luz = {
         // Intensidades
-        ia: Math.floor(10 * rand_range(0.2, 1))/10,
-        i: Math.floor(10 * rand_range(2, 4))/10,
+        ia: Math.floor(10 * rand_range(0.2, 0.8))/10,
+        i: Math.floor(10 * rand_range(1, 3))/10,
 
         // Cor
-        r: Math.floor(100 * random())/100,
-        g: Math.floor(100 * random())/100,
-        b: Math.floor(100 * random())/100,
+        r: 1,
+        g: 1,
+        b: 1,
 
         // Posição
         x: Math.floor(rand_range(-2000, 2000)),
@@ -313,11 +318,6 @@ function setup()
         z: Math.floor(rand_range(0, 2000)),
     };
 
-
-
-    // Configura valores iniciais
-    seed = seed_inicial;
-    document.getElementById("seed").value = seed_inicial;
     document.getElementById("dslider").value = d;
     document.getElementById("dvalue").textContent = d;
     document.getElementById("xluz").value = luz.x;
@@ -345,6 +345,9 @@ function setup()
     document.getElementById("difusa").checked = comp_difusa;
     document.getElementById("especular").checked = especular;
 
+    // Gera esferas aleatórias
+    const n = Math.floor(rand_range(3, 8));
+    esferas = gen_n_esferas(n, -200, 200, -200, 200, -200, -500, 20, 100);
 
     // Binda handlers
     document.getElementById("seed").oninput = update_seed;
@@ -392,21 +395,6 @@ async function main()
     gl.bindBuffer(gl.ARRAY_BUFFER, a_position_buf);
     gl.enableVertexAttribArray(a_position);
     gl.vertexAttribPointer(a_position, 2, gl.FLOAT, false, 0, 0);
-
-    // Gera esferas aleatórias
-    // const n = Math.floor(rand_range(3, 8));
-    // const esferas = gen_n_esferas(n, -500, 500, -500, 500, -800, -1200, 100, 200);
-
-    const esferas = [{
-        xc: 200,
-        yc: 200,
-        zc: 0,
-        r: 50,
-        color: { r: 1, g: 1, b: 1},
-        kd: 0.5,
-        ke: 0.9,
-        n_esp: 51,
-    }];
 
     const eye = { x: 0, y: 0, z: d }
     const { vertices, colors } = rrrrrraios(-300 - pointsize, 300 + pointsize, pointsize, esferas, d, luz, eye);
