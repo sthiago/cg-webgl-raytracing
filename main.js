@@ -21,6 +21,7 @@ let comp_ambiente = true;
 let comp_difusa = true;
 let comp_especular = true;
 let esferas;
+let pixelsize = 1;
 
 function gen_vertices(min, max, step=0.1) {
     const vertices = [];
@@ -265,6 +266,13 @@ function update_d()
     main();
 }
 
+function update_pixelsize()
+{
+    pixelsize = document.getElementById("pixel").value;
+    document.getElementById("pixelvalue").textContent = pixelsize;
+    main();
+}
+
 function update_luz()
 {
     luz.x = document.getElementById("xluz").value;
@@ -300,6 +308,7 @@ function setup()
     // Configura valores iniciais
     seed = seed_inicial;
     document.getElementById("seed").value = seed_inicial;
+    document.getElementById("pixel").value = pixelsize;
 
     // Gera luz inicial aleatória
     luz = {
@@ -318,6 +327,7 @@ function setup()
         z: Math.floor(rand_range(0, 2000)),
     };
 
+    document.getElementById("pixelvalue").textContent = pixelsize;
     document.getElementById("dslider").value = d;
     document.getElementById("dvalue").textContent = d;
     document.getElementById("xluz").value = luz.x;
@@ -363,6 +373,7 @@ function setup()
     document.getElementById("ambiente").onchange = update_luz;
     document.getElementById("difusa").onchange = update_luz;
     document.getElementById("especular").onchange = update_luz;
+    document.getElementById("pixel").onchange = update_pixelsize;
 }
 
 
@@ -385,7 +396,7 @@ async function main()
     const u_resolution = gl.getUniformLocation(program, "u_resolution");
     const u_pointsize = gl.getUniformLocation(program, "u_pointsize");
 
-    const pointsize = 1.0;
+    const pointsize = parseFloat(pixelsize);
 
     const vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
