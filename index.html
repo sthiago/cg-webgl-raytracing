@@ -39,6 +39,10 @@
             padding: 10px;
         }
 
+        .control {
+            margin-bottom: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -72,6 +76,11 @@
         }
     </script>
     <canvas id="canvas" width="600" height="600"></canvas>
+
+    <div id="controls">
+        <div class="control">Seed: <input type="number" id="seed"></div>
+        <div class="control">COP (d): <input type="range" id="dslider" min="0" max="1000" step="1"><span id="dvalue">100</span></div>
+    </div>
 
     <script src="initShaders.js"></script>
     <script src="webgl-utils.js"></script>

@@ -7,12 +7,15 @@ function rand_range(min, max) { return random() * (max - min) + min; }
  * Função utilitária que gera números aleatórios baseados numa seed
  * Fonte: https://stackoverflow.com/a/19303725/1694726
  */
- var seed = Date.now(); // global
- function random() {
-     var x = Math.sin(seed++) * 10000;
-     return x - Math.floor(x);
- }
+function random() {
+    var x = Math.sin(seed++) * 10000;
+    return x - Math.floor(x);
+}
 
+// Variáveis globais
+let seed_inicial = Date.now();
+var seed = seed_inicial;
+let d = 1000;
 
 function gen_vertices(min, max, step=0.1) {
     const vertices = [];
@@ -37,7 +40,7 @@ function gen_esfera(xmin, xmax, ymin, ymax, zmin, zmax, rmin, rmax)
     // Coefs. difuso e especular
     const kd = rand_range(0.5, 1);
     const ke = rand_range(0.5, 1);
-    const n_esp = Math.floor(rand_range(50, 200));
+    const n_esp = Math.floor(rand_range(50, 100));
 
     const rv = {
         xc: rand_range(xmin, xmax),
@@ -49,7 +52,7 @@ function gen_esfera(xmin, xmax, ymin, ymax, zmin, zmax, rmin, rmax)
         ke,
         n_esp,
     };
-    console.log(rv);
+    // console.log(rv);
     return rv;
 }
 
@@ -207,6 +210,34 @@ function rrrrrraios(min, max, step, esferas, d, luz, eye)
     return { vertices, colors };
 }
 
+function update_seed()
+{
+    seed_inicial = document.getElementById("seed").value;
+    seed = seed_inicial;
+    main();
+}
+
+function update_d()
+{
+    d = document.getElementById("dslider").value;
+    document.getElementById("dvalue").textContent = d;
+    main();
+}
+
+function bind_controls()
+{
+    // Configura valores iniciais
+    seed = seed_inicial;
+    document.getElementById("seed").value = seed_inicial;
+    document.getElementById("dslider").value = d;
+    document.getElementById("dvalue").textContent = d;
+
+    // Binda handlers
+    document.getElementById("seed").oninput = update_seed;
+    document.getElementById("dslider").onchange = update_d;
+}
+
+
 async function main()
 {
     // Inicializa contexto WebGL2
@@ -219,6 +250,8 @@ async function main()
     }
 
     const program = initShaders(gl, "vs", "fs");
+
+    bind_controls();
 
     // Configuração de atributos e uniforms
     const a_position = gl.getAttribLocation(program, "a_position");
@@ -262,7 +295,6 @@ async function main()
         // x: 0, y: 0, z: 1000
     };
 
-    const d = 1000;
     const eye = { x: 0, y: 0, z: d }
     const { vertices, colors } = rrrrrraios(-300 - pointsize, 300 + pointsize, pointsize, esferas, d, luz, eye);
 
