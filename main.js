@@ -214,6 +214,7 @@ function update_seed()
 {
     seed_inicial = document.getElementById("seed").value;
     seed = seed_inicial;
+    setup();
     main();
 }
 
@@ -239,6 +240,14 @@ function update_luz()
     document.getElementById("ialuzvalue").textContent = luz.ia;
     document.getElementById("iiluzvalue").textContent = luz.i;
 
+    luz.r = document.getElementById("rluz").value;
+    luz.g = document.getElementById("gluz").value;
+    luz.b = document.getElementById("bluz").value;
+
+    document.getElementById("rluzvalue").textContent = luz.r;
+    document.getElementById("gluzvalue").textContent = luz.g;
+    document.getElementById("bluzvalue").textContent = luz.b;
+
     main();
 }
 
@@ -248,19 +257,17 @@ function setup()
     luz = {
         // Intensidades
         ia: Math.floor(10 * rand_range(0.2, 1))/10,
-        i: Math.floor(10 * rand_range(0.2, 1))/10,
+        i: Math.floor(10 * rand_range(2, 4))/10,
 
         // Cor
-        r: 1, g: 1, b: 1,
-
-        // r: random(),
-        // g: random(),
-        // b: random(),
+        r: Math.floor(100 * random())/100,
+        g: Math.floor(100 * random())/100,
+        b: Math.floor(100 * random())/100,
 
         // Posição
         x: Math.floor(rand_range(-2000, 2000)),
         y: Math.floor(rand_range(-2000, 2000)),
-        z: Math.floor(rand_range(-2000, 2000)),
+        z: Math.floor(rand_range(0, 2000)),
     };
 
     // Configura valores iniciais
@@ -278,6 +285,12 @@ function setup()
     document.getElementById("iiluz").value = luz.i;
     document.getElementById("ialuzvalue").textContent = luz.ia;
     document.getElementById("iiluzvalue").textContent = luz.i;
+    document.getElementById("rluz").value = luz.r;
+    document.getElementById("gluz").value = luz.g;
+    document.getElementById("bluz").value = luz.b;
+    document.getElementById("rluzvalue").textContent = luz.r;
+    document.getElementById("gluzvalue").textContent = luz.g;
+    document.getElementById("bluzvalue").textContent = luz.b;
 
     // Binda handlers
     document.getElementById("seed").oninput = update_seed;
@@ -287,6 +300,9 @@ function setup()
     document.getElementById("zluz").onchange = update_luz;
     document.getElementById("ialuz").onchange = update_luz;
     document.getElementById("iiluz").onchange = update_luz;
+    document.getElementById("rluz").onchange = update_luz;
+    document.getElementById("gluz").onchange = update_luz;
+    document.getElementById("bluz").onchange = update_luz;
 }
 
 
@@ -329,7 +345,7 @@ async function main()
         yc: 200,
         zc: 0,
         r: 50,
-        color: { r: 1, g: 0, b: 0},
+        color: { r: 1, g: 1, b: 1},
         kd: 0.5,
         ke: 0.9,
         n_esp: 51,
