@@ -1,7 +1,17 @@
 // Utilitários
 function radToDeg(r) { return r * 180 / Math.PI; }
 function degToRad(d) { return d * Math.PI / 180; }
-function rand_range(min, max) { return Math.random() * (max - min) + min; }
+function rand_range(min, max) { return random() * (max - min) + min; }
+
+/**
+ * Função utilitária que gera números aleatórios baseados numa seed
+ * Fonte: https://stackoverflow.com/a/19303725/1694726
+ */
+ var seed = Date.now(); // global
+ function random() {
+     var x = Math.sin(seed++) * 10000;
+     return x - Math.floor(x);
+ }
 
 
 function gen_vertices(min, max, step=0.1) {
@@ -17,11 +27,16 @@ function gen_vertices(min, max, step=0.1) {
 
 function gen_esfera(xmin, xmax, ymin, ymax, zmin, zmax, rmin, rmax)
 {
+    // Coef. ambiente
     const color = {
-        r: Math.random(),
-        g: Math.random(),
-        b: Math.random()
+        r: random(),
+        g: random(),
+        b: random()
     };
+
+    // Coefs. difuso e especular
+    const kd = rand_range(0.2, 1.2);
+    const ke = rand_range(0.2, 1.2);
 
     return {
         xc: rand_range(xmin, xmax),
@@ -29,6 +44,8 @@ function gen_esfera(xmin, xmax, ymin, ymax, zmin, zmax, rmin, rmax)
         zc: rand_range(zmin, zmax),
         r: rand_range(rmin, rmax),
         color,
+        kd,
+        ke,
     }
 }
 
@@ -40,6 +57,30 @@ function gen_n_esferas(n, xmin, xmax, ymin, ymax, zmin, zmax, rmin, rmax)
         esferas.push(gen_esfera(xmin, xmax, ymin, ymax, zmin, zmax, rmin, rmax));
     }
     return esferas;
+}
+
+
+function calcula_n_escalar_l(centro_esf, ponto_contato, luz)
+{
+    const n_vet = {
+        x: ponto_contato.x - centro_esf.x,
+        y: ponto_contato.y - centro_esf.y,
+        z: ponto_contato.z - centro_esf.z,
+    }
+
+    const l_vet = {
+        x: luz.x - ponto_contato.x,
+        y: luz.y - ponto_contato.y,
+        z: luz.z - ponto_contato.z,
+    }
+
+    const n_vet_mod = (n_vet.x**2 + n_vet.y**2 + n_vet.z**2)**0.5;
+    const l_vet_mod = (l_vet.x**2 + l_vet.y**2 + l_vet.z**2)**0.5;
+
+    const n_vet_unit = { x: n_vet.x/n_vet_mod, y: n_vet.y/n_vet_mod, z: n_vet.z/n_vet_mod};
+    const l_vet_unit = { x: l_vet.x/l_vet_mod, y: l_vet.y/l_vet_mod, z: l_vet.z/l_vet_mod};
+
+    return n_vet_unit.x*l_vet_unit.x + n_vet_unit.y*l_vet_unit.y + n_vet_unit.z*l_vet_unit.z;
 }
 
 
@@ -71,24 +112,39 @@ function rrrrrraios(min, max, step, esferas, d, luz)
 
     const colors = [];
     for (let i = 0; i < vertices.length; i+=2) {
-        const [y, x] = vertices.slice(i, i+2);
+        const [x, y] = vertices.slice(i, i+2);
 
         let interceptou = false;
         let t_interceptacao = +Infinity;
         let color;
+        let esfera_interceptacao;
         for (const esfera of esferas) {
             const t = raio_intercepta_esfera(x, y, step, esfera, d, luz);
             if (t != undefined && t < t_interceptacao) {
                 interceptou = true;
                 t_interceptacao = t;
                 color = esfera.color;
+                esfera_interceptacao = esfera;
             }
         }
 
         if (interceptou) {
-            const r = luz.i*luz.r * color.r;
-            const g = luz.i*luz.g * color.g;
-            const b = luz.i*luz.b * color.b;
+            const c_esf = {
+                x: esfera_interceptacao.xc,
+                y: esfera_interceptacao.yc,
+                z: esfera_interceptacao.zc,
+            }
+            const p_contato = {
+                x: (x + step/2) * t_interceptacao / d,
+                y: (y + step/2) * t_interceptacao / d,
+                z: d - t_interceptacao
+            }
+
+            const nl = calcula_n_escalar_l(c_esf, p_contato, luz);
+
+            const r = luz.ia*luz.r * color.r + luz.id*luz.r*esfera_interceptacao.kd*nl;
+            const g = luz.ia*luz.g * color.g + luz.id*luz.g*esfera_interceptacao.kd*nl;
+            const b = luz.ia*luz.b * color.b + luz.id*luz.b*esfera_interceptacao.kd*nl;
 
             colors.push(r, g, b);
         } else {
@@ -118,7 +174,7 @@ async function main()
     const u_resolution = gl.getUniformLocation(program, "u_resolution");
     const u_pointsize = gl.getUniformLocation(program, "u_pointsize");
 
-    const pointsize = 2.0;
+    const pointsize = 1.0;
 
     const vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
@@ -135,24 +191,28 @@ async function main()
 
     // Gera luz aleatória
     const luz = {
-        // Intensidade
-        i: rand_range(0.5, 1.0),
+        // Intensidades
+        ia: rand_range(0.2, 0.5),
+        id: rand_range(0.5, 2.0),
+        // ia: 0.3,
+        // id: 1.5,
 
         // Cor
-        r: Math.random(),
-        g: Math.random(),
-        b: Math.random(),
+        r: 1, g: 1, b: 1,
+
+        // r: random(),
+        // g: random(),
+        // b: random(),
 
         // Posição
-        x: rand_range(-500, 500),
-        y: rand_range(-500, 500),
-        z: rand_range(-400, -800),
+        x: rand_range(-1000, 1000),
+        y: rand_range(-1000, 1000),
+        z: rand_range(-1000, 1000),
+
+        // x: 0, y: 0, z: 1000
     };
 
     const { vertices, colors } = rrrrrraios(-300 - pointsize, 300 + pointsize, pointsize, esferas, 1000, luz);
-
-    console.log(vertices);
-    console.log(colors);
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
