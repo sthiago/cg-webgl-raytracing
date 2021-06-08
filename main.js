@@ -17,6 +17,9 @@ let seed_inicial = Date.now();
 var seed = seed_inicial;
 let d = 1000;
 let luz;
+let comp_ambiente = true;
+let comp_difusa = true;
+let comp_especular = true;
 
 function gen_vertices(min, max, step=0.1) {
     const vertices = [];
@@ -197,9 +200,45 @@ function rrrrrraios(min, max, step, esferas, d, luz, eye)
             // cos(alfa) -- para componente especular
             const cos_alfa = calcula_cos_alfa(c_esf, p_contato, luz, eye);
 
-            const r = (luz.ia*luz.r + luz.i*luz.r*esf_intercep.kd*nl + luz.i*luz.r*esf_intercep.ke*(cos_alfa**esf_intercep.n_esp)) * color.r;
-            const g = (luz.ia*luz.g + luz.i*luz.g*esf_intercep.kd*nl + luz.i*luz.g*esf_intercep.ke*(cos_alfa**esf_intercep.n_esp)) * color.g;
-            const b = (luz.ia*luz.b + luz.i*luz.b*esf_intercep.kd*nl + luz.i*luz.b*esf_intercep.ke*(cos_alfa**esf_intercep.n_esp)) * color.b;
+            const ambiente = {
+                r: luz.ia*luz.r,
+                g: luz.ia*luz.g,
+                b: luz.ia*luz.b,
+            };
+
+            const difusa = {
+                r: luz.i*luz.r*esf_intercep.kd*nl,
+                g: luz.i*luz.g*esf_intercep.kd*nl,
+                b: luz.i*luz.b*esf_intercep.kd*nl,
+            }
+
+            const especular = {
+                r: luz.i*luz.r*esf_intercep.ke*(cos_alfa**esf_intercep.n_esp),
+                g: luz.i*luz.g*esf_intercep.ke*(cos_alfa**esf_intercep.n_esp),
+                b: luz.i*luz.b*esf_intercep.ke*(cos_alfa**esf_intercep.n_esp),
+            };
+
+            let r = 0, g = 0, b = 0;
+
+            if (comp_ambiente) {
+                r += ambiente.r;
+                g += ambiente.g;
+                b += ambiente.b;
+            }
+            if (comp_difusa) {
+                r += difusa.r;
+                g += difusa.g;
+                b += difusa.b;
+            }
+            if (comp_especular) {
+                r += especular.r;
+                g += especular.g;
+                b += especular.b;
+            }
+
+            r *= color.r;
+            g *= color.g;
+            b *= color.b;
 
             colors.push(r, g, b);
         } else {
@@ -248,6 +287,10 @@ function update_luz()
     document.getElementById("gluzvalue").textContent = luz.g;
     document.getElementById("bluzvalue").textContent = luz.b;
 
+    comp_ambiente = document.getElementById("ambiente").checked;
+    comp_difusa = document.getElementById("difusa").checked;
+    comp_especular = document.getElementById("especular").checked;
+
     main();
 }
 
@@ -269,6 +312,8 @@ function setup()
         y: Math.floor(rand_range(-2000, 2000)),
         z: Math.floor(rand_range(0, 2000)),
     };
+
+
 
     // Configura valores iniciais
     seed = seed_inicial;
@@ -292,6 +337,15 @@ function setup()
     document.getElementById("gluzvalue").textContent = luz.g;
     document.getElementById("bluzvalue").textContent = luz.b;
 
+    comp_ambiente = true;
+    comp_difusa = true;
+    comp_especular = true;
+
+    document.getElementById("ambiente").checked = comp_ambiente;
+    document.getElementById("difusa").checked = comp_difusa;
+    document.getElementById("especular").checked = especular;
+
+
     // Binda handlers
     document.getElementById("seed").oninput = update_seed;
     document.getElementById("dslider").onchange = update_d;
@@ -303,6 +357,9 @@ function setup()
     document.getElementById("rluz").onchange = update_luz;
     document.getElementById("gluz").onchange = update_luz;
     document.getElementById("bluz").onchange = update_luz;
+    document.getElementById("ambiente").onchange = update_luz;
+    document.getElementById("difusa").onchange = update_luz;
+    document.getElementById("especular").onchange = update_luz;
 }
 
 
