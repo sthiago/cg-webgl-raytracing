@@ -142,8 +142,8 @@ function raio_intercepta_esfera(i, j, pointsize, esfera, d)
     i = i + pointsize/2;
     j = j + pointsize/2;
 
-    const A = (j/d)**2 + (i/d)**2 + 1;
-    const B = 2*zc - 2*xc*j/d - 2*yc*i/d - 2*d;
+    const A = (i/d)**2 + (j/d)**2 + 1;
+    const B = 2*zc - 2*xc*i/d - 2*yc*j/d - 2*d;
     const C = xc**2 + yc**2 + zc**2 - r**2 + d**2 - 2*zc*d;
 
     const delta = B**2 - 4*A*C;
