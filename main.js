@@ -16,6 +16,7 @@ function random() {
 let seed_inicial = Date.now();
 var seed = seed_inicial;
 let d = 1000;
+let luz;
 
 function gen_vertices(min, max, step=0.1) {
     const vertices = [];
@@ -52,7 +53,6 @@ function gen_esfera(xmin, xmax, ymin, ymax, zmin, zmax, rmin, rmax)
         ke,
         n_esp,
     };
-    // console.log(rv);
     return rv;
 }
 
@@ -224,6 +224,19 @@ function update_d()
     main();
 }
 
+function update_luz()
+{
+    luz.x = document.getElementById("xluz").value;
+    luz.y = document.getElementById("yluz").value;
+    luz.z = document.getElementById("zluz").value;
+
+    document.getElementById("xluzvalue").textContent = luz.x;
+    document.getElementById("yluzvalue").textContent = luz.y;
+    document.getElementById("zluzvalue").textContent = luz.z;
+
+    main();
+}
+
 function bind_controls()
 {
     // Configura valores iniciais
@@ -231,10 +244,19 @@ function bind_controls()
     document.getElementById("seed").value = seed_inicial;
     document.getElementById("dslider").value = d;
     document.getElementById("dvalue").textContent = d;
+    luz.x = document.getElementById("xluz").value;
+    luz.y = document.getElementById("yluz").value;
+    luz.z = document.getElementById("zluz").value;
+    document.getElementById("xluzvalue").textContent = luz.x;
+    document.getElementById("yluzvalue").textContent = luz.y;
+    document.getElementById("zluzvalue").textContent = luz.z;
 
     // Binda handlers
     document.getElementById("seed").oninput = update_seed;
     document.getElementById("dslider").onchange = update_d;
+    document.getElementById("xluz").onchange = update_luz;
+    document.getElementById("yluz").onchange = update_luz;
+    document.getElementById("zluz").onchange = update_luz;
 }
 
 
@@ -250,8 +272,6 @@ async function main()
     }
 
     const program = initShaders(gl, "vs", "fs");
-
-    bind_controls();
 
     // Configuração de atributos e uniforms
     const a_position = gl.getAttribLocation(program, "a_position");
@@ -271,14 +291,25 @@ async function main()
     gl.vertexAttribPointer(a_position, 2, gl.FLOAT, false, 0, 0);
 
     // Gera esferas aleatórias
-    const n = Math.floor(rand_range(3, 8));
-    const esferas = gen_n_esferas(n, -500, 500, -500, 500, -800, -1200, 100, 200);
+    // const n = Math.floor(rand_range(3, 8));
+    // const esferas = gen_n_esferas(n, -500, 500, -500, 500, -800, -1200, 100, 200);
 
-    // Gera luz aleatória
-    const luz = {
+    const esferas = [{
+        xc: 200,
+        yc: 200,
+        zc: 0,
+        r: 50,
+        color: { r: 1, g: 0, b: 0},
+        kd: 0.5,
+        ke: 0.9,
+        n_esp: 51,
+    }];
+
+    // Gera luz inicial aleatória
+    luz = {
         // Intensidades
         ia: 0.2, //rand_range(0.2, 0.5),
-        i: 2.0, //rand_range(0.5, 2.0),
+        i: 1.0, //rand_range(0.5, 2.0),
 
         // Cor
         r: 1, g: 1, b: 1,
@@ -288,12 +319,14 @@ async function main()
         // b: random(),
 
         // Posição
-        x: rand_range(-200, 200),
-        y: rand_range(-200, 200),
-        z: rand_range(0, 2000),
+        // x: rand_range(-200, 200),
+        // y: rand_range(-200, 200),
+        // z: rand_range(0, 2000),
 
-        // x: 0, y: 0, z: 1000
+        x: -2000, y: 0, z: 1000
     };
+
+    bind_controls();
 
     const eye = { x: 0, y: 0, z: d }
     const { vertices, colors } = rrrrrraios(-300 - pointsize, 300 + pointsize, pointsize, esferas, d, luz, eye);
