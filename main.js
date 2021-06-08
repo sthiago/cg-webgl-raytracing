@@ -198,7 +198,7 @@ function rrrrrraios(min, max, step, esferas, d, luz, eye)
             const nl = calcula_n_escalar_l(c_esf, p_contato, luz);
 
             // cos(alfa) -- para componente especular
-            const cos_alfa = calcula_cos_alfa(c_esf, p_contato, luz, eye);
+            const cos_alfa = Math.max(calcula_cos_alfa(c_esf, p_contato, luz, eye), 0);
 
             const ambiente = {
                 r: luz.ia*luz.r,
