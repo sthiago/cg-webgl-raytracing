@@ -234,6 +234,11 @@ function update_luz()
     document.getElementById("yluzvalue").textContent = luz.y;
     document.getElementById("zluzvalue").textContent = luz.z;
 
+    luz.ia = document.getElementById("ialuz").value;
+    luz.i = document.getElementById("iiluz").value;
+    document.getElementById("ialuzvalue").textContent = luz.ia;
+    document.getElementById("iiluzvalue").textContent = luz.i;
+
     main();
 }
 
@@ -242,8 +247,8 @@ function setup()
     // Gera luz inicial aleatória
     luz = {
         // Intensidades
-        ia: 0.2, //rand_range(0.2, 0.5),
-        i: 1.0, //rand_range(0.5, 2.0),
+        ia: Math.floor(10 * rand_range(0.2, 1))/10,
+        i: Math.floor(10 * rand_range(0.2, 1))/10,
 
         // Cor
         r: 1, g: 1, b: 1,
@@ -269,6 +274,10 @@ function setup()
     document.getElementById("xluzvalue").textContent = luz.x;
     document.getElementById("yluzvalue").textContent = luz.y;
     document.getElementById("zluzvalue").textContent = luz.z;
+    document.getElementById("ialuz").value = luz.ia;
+    document.getElementById("iiluz").value = luz.i;
+    document.getElementById("ialuzvalue").textContent = luz.ia;
+    document.getElementById("iiluzvalue").textContent = luz.i;
 
     // Binda handlers
     document.getElementById("seed").oninput = update_seed;
@@ -276,6 +285,8 @@ function setup()
     document.getElementById("xluz").onchange = update_luz;
     document.getElementById("yluz").onchange = update_luz;
     document.getElementById("zluz").onchange = update_luz;
+    document.getElementById("ialuz").onchange = update_luz;
+    document.getElementById("iiluz").onchange = update_luz;
 }
 
 
