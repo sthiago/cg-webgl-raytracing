@@ -237,16 +237,35 @@ function update_luz()
     main();
 }
 
-function bind_controls()
+function setup()
 {
+    // Gera luz inicial aleatória
+    luz = {
+        // Intensidades
+        ia: 0.2, //rand_range(0.2, 0.5),
+        i: 1.0, //rand_range(0.5, 2.0),
+
+        // Cor
+        r: 1, g: 1, b: 1,
+
+        // r: random(),
+        // g: random(),
+        // b: random(),
+
+        // Posição
+        x: Math.floor(rand_range(-2000, 2000)),
+        y: Math.floor(rand_range(-2000, 2000)),
+        z: Math.floor(rand_range(-2000, 2000)),
+    };
+
     // Configura valores iniciais
     seed = seed_inicial;
     document.getElementById("seed").value = seed_inicial;
     document.getElementById("dslider").value = d;
     document.getElementById("dvalue").textContent = d;
-    luz.x = document.getElementById("xluz").value;
-    luz.y = document.getElementById("yluz").value;
-    luz.z = document.getElementById("zluz").value;
+    document.getElementById("xluz").value = luz.x;
+    document.getElementById("yluz").value = luz.y;
+    document.getElementById("zluz").value = luz.z;
     document.getElementById("xluzvalue").textContent = luz.x;
     document.getElementById("yluzvalue").textContent = luz.y;
     document.getElementById("zluzvalue").textContent = luz.z;
@@ -305,29 +324,6 @@ async function main()
         n_esp: 51,
     }];
 
-    // Gera luz inicial aleatória
-    luz = {
-        // Intensidades
-        ia: 0.2, //rand_range(0.2, 0.5),
-        i: 1.0, //rand_range(0.5, 2.0),
-
-        // Cor
-        r: 1, g: 1, b: 1,
-
-        // r: random(),
-        // g: random(),
-        // b: random(),
-
-        // Posição
-        // x: rand_range(-200, 200),
-        // y: rand_range(-200, 200),
-        // z: rand_range(0, 2000),
-
-        x: -2000, y: 0, z: 1000
-    };
-
-    bind_controls();
-
     const eye = { x: 0, y: 0, z: d }
     const { vertices, colors } = rrrrrraios(-300 - pointsize, 300 + pointsize, pointsize, esferas, d, luz, eye);
 
@@ -353,4 +349,5 @@ async function main()
     gl.drawArrays(gl.POINTS, 0, vertices.length/2);
 }
 
+setup();
 main();
